@@ -1,4 +1,7 @@
 import yaml
+config = None
 
 def readConfig(path):
-    return yaml.load(open(path))
+    global config
+    config = yaml.load(open(path))
+    return config

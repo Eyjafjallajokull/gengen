@@ -8,7 +8,7 @@ class TestGenome(TestCase):
         self.cfg = readConfig('tests/fixtures/config/basic.yml')
         logger = logging.getLogger('population')
         logger.addHandler(logging.NullHandler())
-        self.object = AccuracyMachine(self.cfg, logger)
+        self.object = AccuracyMachine(logger)
 
     def tearDown(self):
         self.object.remove()

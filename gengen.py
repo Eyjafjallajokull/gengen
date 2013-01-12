@@ -1,4 +1,4 @@
-import os
+import argparse
 import sys
 import logging
 from unittest import TestLoader, TextTestRunner
@@ -36,15 +36,20 @@ def closeRamDir(basePath, ramPath):
     do('cp -r %s/* %s'%(ramPath, basePath), False)
 
 if __name__ == '__main__':
-    if len(sys.argv)==2 and sys.argv[1] == 'tests':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('command', metavar='COMMAND', help='command: init, evolve, tests')
+    parser.add_argument('-c','--config', metavar='CONFIG', default='config.yml', help='load alternative config file')
+#    parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
+    args = parser.parse_args()
+
+    if args.command=='tests':
         suite = TestLoader().discover('tests', pattern='*.py')
         TextTestRunner(verbosity=2).run(suite)
         exit(0)
 
-    cfg = readConfig('config.yml')
+    cfg = readConfig(args.config)
     logger = initLogger()
     initRamDir(cfg['main']['populationPath'], cfg['main']['populationRamPath'])
-
 
 #    g = pickle.load(open('population_ram/1249448_genome.obj'))
 #    br = BlenderRenderer(cfg['main']['baseBlendPath'])
@@ -55,12 +60,12 @@ if __name__ == '__main__':
 
     br = BlenderRenderer(cfg['main']['baseBlendPath'])
     fm = MeshFitnessMachine(cfg['main']['baseImage'], br)
-    p = Population(MeshGenome, cfg, logger)
+    p = Population(MeshGenome, logger)
     p.fitnessMachine = fm
 
-    if len(sys.argv)==2 and sys.argv[1] == 'init':
+    if args.command=='init':
         p.initialize()
-    else:
+    elif args.command=='evolve':
         p.load()
 
     try:

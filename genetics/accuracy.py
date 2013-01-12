@@ -1,4 +1,5 @@
 import copy
+import lib.config as config
 class AccuracyParam:
     def __init__(self, name, cfg, realValue):
         self.name = name
@@ -36,16 +37,15 @@ class AccuracyParam:
         self.scaledValue = scaled
 
 class AccuracyMachine:
-    def __init__(self, cfg, log):
-        self.cfg = cfg
+    def __init__(self, log):
         self.log = log
         self.params = []
-        self.genomeGenerationTrigger = cfg['accuracy']['trigger']
-        if 'accuracy' in cfg:
-            for paramName, paramConfig in cfg['accuracy'].items():
+        if 'accuracy' in config.config:
+            self.genomeGenerationTrigger = config.config['accuracy']['trigger']
+            for paramName, paramConfig in config.config['accuracy'].items():
                 if paramName != 'trigger':
                     param = AccuracyParam(paramName, paramConfig,
-                        self.cfg['ga'][paramName])
+                        config.config['ga'][paramName])
                     self.params.append(param)
             self.maximumAccuracy = False
         else:
@@ -61,7 +61,7 @@ class AccuracyMachine:
         for param in self.params:
             old = param.realValue
             param.increase()
-            self.cfg['ga'][param.name] = param.realValue
+            config.config['ga'][param.name] = param.realValue
             if old != param.realValue:
                 self.log.info('changed %s to %f'%(param.name, float(param.realValue)))
 

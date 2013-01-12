@@ -7,7 +7,7 @@ from lib.config import readConfig
 class TestGenome(TestCase):
     def setUp(self):
         self.cfg = readConfig('tests/fixtures/config/basic.yml')
-        self.object = Genome(self.cfg)
+        self.object = Genome()
 
     def tearDown(self):
         self.object.remove()
@@ -44,7 +44,7 @@ class TestGenome(TestCase):
 class TestMeshGenome(TestCase):
     def setUp(self):
         self.cfg = readConfig('tests/fixtures/config/basic.yml')
-        self.object = MeshGenome(self.cfg)
+        self.object = MeshGenome()
 
     def tearDown(self):
         self.object.remove()

@@ -3,17 +3,17 @@ from lib.common import *
 import pickle
 import random
 import copy
+import lib.config as config
 
 class Genome(object):
     fitnessMachine = BaseFitnessMachine
-    def __init__(self, cfg, serial=None):
-        self.cfg = cfg
+    def __init__(self, serial=None):
         if not serial:
             serial = str(int(random.random()*10000000))
         self.serial = serial
         self.data = None
-        self.objPath = self.cfg['main']['populationRamPath']+self.serial+'_genome.obj'
-        self.logPath = self.cfg['main']['populationRamPath']+self.serial+'.log'
+        self.objPath = config.config['main']['populationRamPath']+self.serial+'_genome.obj'
+        self.logPath = config.config['main']['populationRamPath']+self.serial+'.log'
         self.fitness = 999999999
         self.dataModified = False
         self.generation = 0
@@ -28,7 +28,7 @@ class Genome(object):
         pickle.dump(self, open(self.objPath, 'wb'))
 
     def remove(self):
-        do('rm -f %s' % self.cfg['main']['populationRamPath']+self.serial+'*')
+        do('rm -f %s' % config.config['main']['populationRamPath']+self.serial+'*')
 
     def create(self):
         self._create()
@@ -42,7 +42,7 @@ class Genome(object):
 
     def _createWithCrossover(self, genomeA, genomeB):
         self.data = copy.deepcopy(genomeA.data)
-        for i in random.sample(xrange(0, self.cfg['ga']['genomeSize']), self.cfg['ga']['crossoverObjectCount']):
+        for i in random.sample(xrange(0, config.config['ga']['genomeSize']), config.config['ga']['crossoverObjectCount']):
             self.data[i] = copy.deepcopy(genomeB.data[i])
 
     def mutate(self):
@@ -59,15 +59,15 @@ class Genome(object):
 class MeshGenome(Genome):
     fitnessMachine = MeshFitnessMachine
     meshConstraints = (7+3, 5+3, 3)
-    def __init__(self, cfg, serial=None):
-        super(MeshGenome, self).__init__(cfg, serial)
-        self.blendPath = self.cfg['main']['populationRamPath']+self.serial+'.blend'
-        self.dataPath = self.cfg['main']['populationRamPath']+self.serial+'_data.obj'
-        self.pngPath = self.cfg['main']['populationRamPath']+self.serial+'.png'
+    def __init__(self, serial=None):
+        super(MeshGenome, self).__init__(serial)
+        self.blendPath = config.config['main']['populationRamPath']+self.serial+'.blend'
+        self.dataPath = config.config['main']['populationRamPath']+self.serial+'_data.obj'
+        self.pngPath = config.config['main']['populationRamPath']+self.serial+'.png'
 
     def _create(self):
         self.data = []
-        for i in range(0, self.cfg['ga']['genomeSize']):
+        for i in range(0, config.config['ga']['genomeSize']):
             obj = []
             obj.append([rand(self.meshConstraints[0]), rand(self.meshConstraints[1]), rand(self.meshConstraints[2])])
             obj.append([rand(self.meshConstraints[0]), rand(self.meshConstraints[1]), rand(self.meshConstraints[2])])
@@ -84,10 +84,10 @@ class MeshGenome(Genome):
         object.insert(0, left)
 
     def _mutate(self):
-        objectCount = self.cfg['ga']['mutationObjectCount']
-        pointCount = self.cfg['ga']['mutationPointCount']
-        coordinateCount = self.cfg['ga']['mutationCoordinateCount']
-        randomizeMultiplier = self.cfg['ga']['mutationRandomizeMultiplier']
+        objectCount = config.config['ga']['mutationObjectCount']
+        pointCount = config.config['ga']['mutationPointCount']
+        coordinateCount = config.config['ga']['mutationCoordinateCount']
+        randomizeMultiplier = config.config['ga']['mutationRandomizeMultiplier']
         for object in random.sample(xrange(0,len(self.data)), objectCount):
             pointsToMutate = random.sample([0,1,2], pointCount)
             for point in pointsToMutate:
@@ -100,11 +100,11 @@ class MeshGenome(Genome):
 class TestGenome(Genome):
     fitnessMachine = TestFitnessMachine
     def _create(self):
-        self.data = [ int(random.randrange(0,2)) for i in range(0, self.cfg['ga']['genomeSize'])]
+        self.data = [ int(random.randrange(0,2)) for i in range(0, config.config['ga']['genomeSize'])]
 
     def _mutate(self):
-        for i in random.sample(xrange(0, len(self.data)), self.cfg['ga']['mutationObjectCount']):
-            self.data[i] = int(randNumber(self.data[i], 2, self.cfg['ga']['mutationRandomizeMultiplier']))
+        for i in random.sample(xrange(0, len(self.data)), config.config['ga']['mutationObjectCount']):
+            self.data[i] = int(randNumber(self.data[i], 2, config.config['ga']['mutationRandomizeMultiplier']))
         self.save()
 
 
@@ -145,7 +145,7 @@ class MetaGenome(Genome):
             pass
 
     def mutate(self):
-        for i in range(0, self.cfg['ga']['mutationFactor']):
+        for i in range(0, config.config['ga']['mutationFactor']):
             param = random.choice(self.base['ga'].keys())
             value = None
             while True:
