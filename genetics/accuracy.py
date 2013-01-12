@@ -1,5 +1,6 @@
 import lib.config as config
 import math
+import lib.log as log
 
 class AccuracyParam:
     def __init__(self, name, cfg, currentValue):
@@ -44,8 +45,7 @@ class AccuracyParam:
         self.scaledValue = scaled
 
 class AccuracyMachine:
-    def __init__(self, log):
-        self.log = log
+    def __init__(self):
         self.params = []
         if 'accuracy' in config.config:
             self.genomeGenerationTrigger = config.config['accuracy']['trigger']
@@ -69,12 +69,12 @@ class AccuracyMachine:
             param.increase()
             config.config['ga'][param.name] = param.currentValue
             if old != param.currentValue:
-                self.log.info('changed %s from %s to %s'%(param.name, str(old), str(param.currentValue)))
+                log.info('changed %s from %s to %s'%(param.name, str(old), str(param.currentValue)))
                 if param.name == 'genomeSize':
                     for param2 in self.params:
                         if param2.name != 'genomeSize':
                             param2.resetToOriginalValue()
-                    self.log.info('genomeSize change triggered resetting of the other params')
+                    log.info('genomeSize change triggered resetting of the other params')
                     break
 
     def checkPopulation(self, population):

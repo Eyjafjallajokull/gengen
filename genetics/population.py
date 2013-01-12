@@ -6,6 +6,7 @@ import pickle
 import random
 from genetics.accuracy import AccuracyMachine
 from lib.common import do
+import lib.log as log
 import lib.config as config
 
 generation = lambda s: colored(s, 'yellow', attrs=['bold'])
@@ -22,15 +23,14 @@ def _poolFitnessCalculation(params):
 
 
 class Population():
-    def __init__(self, genomeType, log):
+    def __init__(self, genomeType):
         self.pool = Pool(processes=4, maxtasksperchild=100)
         self.generation = 0
         self.genomeType = genomeType
         self.genomes = []
-        self.log = log
         self.fitnessMachine = None
         # todo: AccuracyMachine should listen for Population events
-        self.accuracyMachine = AccuracyMachine(self.log)
+        self.accuracyMachine = AccuracyMachine()
 
     def load(self):
         genomeFiles = glob.glob(config.config['main']['populationRamPath'] + '*_genome.obj')
@@ -47,10 +47,10 @@ class Population():
             genome = self.genomeType()
             genome.create()
             self.genomes.append(genome)
-        self.log.info('created population of %d genomes' % config.config['ga']['populationSize'])
+        log.info('created population of %d genomes' % config.config['ga']['populationSize'])
 
     def step(self):
-        self.log.info(generation('SUNRISE %d generation' % self.generation))
+        log.info(generation('SUNRISE %d generation' % self.generation))
         start = time()
         self.calculateFitness()
 
@@ -60,27 +60,27 @@ class Population():
             self.resetGeneration()
 
         bestGenome = self.genomes[0]
-        self.log.debug(
+        log.debug(
             info('current population ') + ', '.join(map(lambda a: a.serial + '-' + str(a.fitness), self.genomes)))
-        self.log.info(info('best genome %s-%d; average fitness %d'
+        log.info(info('best genome %s-%d; average fitness %d'
                            % (bestGenome.serial, bestGenome.fitness,
                               reduce(lambda avg, g: avg + g.fitness, self.genomes, 0) / len(self.genomes))))
 
         parents = self.selection()
         self.crossover(parents)
-        self.log.info(generation('SUNSET %d seconds' % int(time() - start)))
+        log.info(generation('SUNSET %d seconds' % int(time() - start)))
 
     def calculateFitness(self):
-        self.log.debug(info('calculateFitness'))
+        log.debug(info('calculateFitness'))
         poolData = [[self.fitnessMachine, g] for g in self.genomes]
         timeout = 5 * config.config['ga']['populationSize']*10000
         self.genomes = self.pool.map_async(_poolFitnessCalculation, poolData).get(timeout)
 
     def selection(self):
         selectedGenomes = self._selectionTournament()
-        self.log.debug(stage('selected %d genomes' % (len(selectedGenomes))))
+        log.debug(stage('selected %d genomes' % (len(selectedGenomes))))
         selectedGenomes = sorted(selectedGenomes, cmp=lambda a, b: cmp(a.fitness, b.fitness))
-        self.log.debug(', '.join(map(lambda a: a.serial + '-' + str(a.fitness), selectedGenomes)))
+        log.debug(', '.join(map(lambda a: a.serial + '-' + str(a.fitness), selectedGenomes)))
         return selectedGenomes
 
     def _selectionTournament(self):
@@ -119,9 +119,9 @@ class Population():
 #        return selectedGenomes
 
     def crossover(self, parents):
-        self.log.debug(stage('crossover'))
+        log.debug(stage('crossover'))
         if config.config['ga']['crossoverAllNew'] == 1:
-            self.log.info('clear population')
+            log.info('clear population')
             for genome in self.genomes:
                 genome.remove()
             self.genomes = []
@@ -142,7 +142,7 @@ class Population():
         return self.genomes[0]
 
     def resetGeneration(self):
-        self.log.info('resetGeneration')
+        log.info('resetGeneration')
         self.generation = 0
         for genome in self.genomes:
             genome.generation = 0

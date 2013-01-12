@@ -1,27 +1,12 @@
 import argparse
-import sys
-import logging
 from unittest import TestLoader, TextTestRunner
-from lib.config import readConfig
 from genetics.population import Population
 from genetics.genome import *
 from lib.renderer.blender import BlenderRenderer
+from lib.config import readConfig
+from lib.log import initLogger
 
-def initLogger():
-    #todo: make logging config global
-    rawFormatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s %(message)s')
-    prettyFormatter = logging.Formatter('%(message)s')
-    stdoutHandler = logging.StreamHandler(sys.stdout)
-    stdoutHandler.setLevel(logging.INFO)
-    stdoutHandler.setFormatter(prettyFormatter)
-    fileHandler = logging.FileHandler('log.log')
-    fileHandler.setLevel(logging.DEBUG)
-    fileHandler.setFormatter(rawFormatter)
-    logger = logging.getLogger('population')
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(stdoutHandler)
-    logger.addHandler(fileHandler)
-    return logger
+
 
 def initRamDir(basePath, ramPath):
     tmp = ramPath
@@ -62,7 +47,7 @@ if __name__ == '__main__':
 
     br = BlenderRenderer()
     fm = MeshFitnessMachine(cfg['main']['baseImage'], br)
-    p = Population(MeshGenome, logger)
+    p = Population(MeshGenome)
     p.fitnessMachine = fm
 
     if args.command=='init':
