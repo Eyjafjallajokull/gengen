@@ -1,0 +1,32 @@
+main:
+  populationPath: /media/dane/dokumenty/Galeria/3d/gen-gen/tmp/population_test
+  populationRamPath: /media/dane/dokumenty/Galeria/3d/gen-gen/tmp/population_test_ram
+  baseBlendPath: /media/dane/dokumenty/Galeria/3d/gen-gen/main.blend
+  baseImage: /media/dane/dokumenty/Galeria/3d/gen-gen/cmpOriginaleSmall2.png
+
+ga:
+  generations: 100
+  populationSize: 20
+  genomeSize: 10
+  
+  # jaka czesc populacji przejdzie dalej
+  selectionMultiplier: 0.25
+  
+  # ile obiektow genomu zostanie przeszczepionych
+  crossoverObjectCount: 1
+  crossoverAllNew: 0
+  
+  mutationObjectCount: 1
+  mutationPointCount: 3
+  mutationCoordinateCount: 3
+  mutationRandomizeMultiplier: 6
+  
+  increaseAccuracyWhenBestGenomeReachesGeneration: 100
+  increaseAccuracyMultiplier: 0.75
+
+accuracy:
+  trigger: 100 # number of generations of best genome
+  mutationRandomizeMultiplier:
+    multiplier: 0.75
+    minimum: 0.1
+    int: True

@@ -1,0 +1,40 @@
+main:
+  populationPath: population/
+  populationRamPath: population_ram/
+  baseBlendPath: main.blend
+  baseImage: img/monaLista320.jpg
+
+ga:
+  generations: 800
+  populationSize: 25
+  genomeSize: 300
+  
+  # what part of population will be selected
+  selectionMultiplier: 0.25
+  
+  # how many genome objects will be mixed in crossover
+  crossoverObjectCount: 50
+  crossoverAllNew: 0
+  
+  mutationObjectCount: 20
+  mutationPointCount: 3
+  mutationCoordinateCount: 3
+  mutationRandomizeMultiplier: 3
+  
+accuracy:
+  trigger: 25 # number of generations of best genome
+  mutationRandomizeMultiplier:
+    multiplier: 0.5
+    minimum: 0.1
+  mutationObjectCount:
+    multiplier: 0.75
+    minimum: 1
+    int: 1
+  mutationPointCount:
+    multiplier: 0.75
+    minimum: 1
+    int: 1
+  mutationCoordinateCount:
+    multiplier: 0.9
+    minimum: 1
+    int: 1
