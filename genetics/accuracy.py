@@ -1,4 +1,5 @@
 import lib.config as config
+import math
 
 class AccuracyParam:
     def __init__(self, name, cfg, realValue):
@@ -8,10 +9,12 @@ class AccuracyParam:
         self.scaledValue = float(realValue)
         self.realValue = realValue
         if 'int' in cfg:
-            self.cast = int
+            self.cast = lambda x: int(math.ceil(x))
         else:
             self.cast = float
         self.realIntSteps = False
+    def __repr__(self):
+        return self.name+'_'+str(self.realValue)+'_'+str(self.scaledValue)
 
     def getNextValue(self):
         realValue = self.realValue
@@ -44,8 +47,7 @@ class AccuracyMachine:
             self.genomeGenerationTrigger = config.config['accuracy']['trigger']
             for paramName, paramConfig in config.config['accuracy'].items():
                 if paramName != 'trigger':
-                    param = AccuracyParam(paramName, paramConfig,
-                        config.config['ga'][paramName])
+                    param = AccuracyParam(paramName, paramConfig, config.config['ga'][paramName])
                     self.params.append(param)
             self.maximumAccuracy = False
         else:
@@ -63,7 +65,7 @@ class AccuracyMachine:
             param.increase()
             config.config['ga'][param.name] = param.realValue
             if old != param.realValue:
-                self.log.info('changed %s to %f'%(param.name, float(param.realValue)))
+                self.log.info('changed %s from %s to %s'%(param.name, str(old), str(param.realValue)))
 
     def checkPopulation(self, population):
         if population.getBestGenome().generation >= self.genomeGenerationTrigger:
