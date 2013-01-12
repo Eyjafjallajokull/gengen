@@ -24,6 +24,7 @@ for object in meshData:
 
 first.remove()
 
+# todo: render size should be taken from base image
 bpy.context.scene.render.resolution_x = 320
 bpy.context.scene.render.resolution_y = 240
 try:

@@ -12,6 +12,7 @@ class BlenderRenderer(BaseRenderer):
         self.baseBlendPath = config.config['main']['baseBlendPath']
 
     def renderToFile(self, genome):
+        # todo: methods needs refactoring
         pickle.dump(genome.data, open(genome.dataPath, 'wb'))
         do('cp %s %s' % (self.baseBlendPath, genome.blendPath))
         tmpPngPath = '/tmp/%s' % genome.serial

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from Image import FLIP_LEFT_RIGHT
 import pickle
 
@@ -10,6 +9,8 @@ from base import BaseRenderer
 from PIL import Image
 from math import sqrt
 from lib.common import do
+
+# this is pure opengl, it cant look nice
 
 ESCAPE = '\033'
 
@@ -161,6 +162,7 @@ class OpenglRenderer(BaseRenderer):
     size = (320,240)
 
     def _renderToFile(self, genome):
+        # todo: this is very slow
         pixels = getPixelData(self.size, genome.data) *255
         pixels.astype(int)
         pixels = [ tuple(pixel) for pixel in pixels ]

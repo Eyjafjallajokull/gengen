@@ -1,5 +1,5 @@
-import copy
 import lib.config as config
+
 class AccuracyParam:
     def __init__(self, name, cfg, realValue):
         self.name = name
