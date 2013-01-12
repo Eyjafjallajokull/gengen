@@ -58,7 +58,7 @@ if __name__ == '__main__':
 #    ogr.renderToScreen(g)
 #    exit()
 
-    br = BlenderRenderer(cfg['main']['baseBlendPath'])
+    br = BlenderRenderer()
     fm = MeshFitnessMachine(cfg['main']['baseImage'], br)
     p = Population(MeshGenome, logger)
     p.fitnessMachine = fm

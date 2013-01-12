@@ -1,17 +1,21 @@
 import bpy
+import os
 import sys
 import pickle
+import json
 sys.path.append('.')
 from lib.renderer.blenderCommon import Object
-import os
-
-serial = os.getenv('genomeSerial')
-cwd = os.getcwd()+os.sep
-populationPath = cwd+'population_ram'+os.sep
-currentBlendPath = populationPath+serial+'.blend'
 print('blenderCreateMesh.py start')
 
-meshData = pickle.load(open(populationPath+serial+'_data.obj', 'rb'))
+params = json.loads(os.getenv('params'))
+config = params['config']
+serial = params['genomeSerial']
+
+populationPath = config['main']['populationRamPath']
+currentBlendPath = populationPath+serial+'.blend'
+meshDataPath = populationPath+serial+'_data.obj'
+
+meshData = pickle.load(open(meshDataPath, 'rb'))
 
 first = Object('First')
 for object in meshData:
