@@ -12,3 +12,4 @@ class TestGenome(TestCase):
 
     def tearDown(self):
         self.object.remove()
+    #todo: implement tests

@@ -8,6 +8,7 @@ from genetics.genome import *
 from lib.renderer.blender import BlenderRenderer
 
 def initLogger():
+    #todo: make logging config global
     rawFormatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s %(message)s')
     prettyFormatter = logging.Formatter('%(message)s')
     stdoutHandler = logging.StreamHandler(sys.stdout)
@@ -28,7 +29,7 @@ def initRamDir(basePath, ramPath):
         tmp = tmp[0:-1]
     if do('mount | grep %s'% tmp, True):
         do('mkdir %s' % ramPath)
-        do('sudo mount -osize=100m tmpfs %s -t tmpfs' % ramPath, False)
+        do('sudo mount -osize=100m tmpfs %s -t tmpfs' % ramPath, False, True)
         do('cp -r %s/* %s'%(basePath, ramPath))
 
 def closeRamDir(basePath, ramPath):
@@ -39,6 +40,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('command', metavar='COMMAND', help='command: init, evolve, tests')
     parser.add_argument('-c','--config', metavar='CONFIG', default='config.yml', help='load alternative config file')
+    #todo: add debug mode
 #    parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
     args = parser.parse_args()
 
