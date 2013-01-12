@@ -1,5 +1,6 @@
 .idea
 cache.image
 log*
-population*
+population_*
+population/
 tmp
