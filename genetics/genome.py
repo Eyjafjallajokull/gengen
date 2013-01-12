@@ -1,3 +1,4 @@
+import math
 from genetics.fitness import *
 from lib.common import *
 import pickle
@@ -42,8 +43,11 @@ class Genome(object):
 
     def _createWithCrossover(self, genomeA, genomeB):
         self.data = copy.deepcopy(genomeA.data)
-        for i in random.sample(xrange(0, config.config['ga']['genomeSize']), config.config['ga']['crossoverObjectCount']):
-            self.data[i] = copy.deepcopy(genomeB.data[i])
+        genomeSize = len(genomeA.data) if len(genomeA.data) < len(genomeB.data) else len(genomeB.data)
+        crossoverObjectCount = int(math.ceil(genomeSize * config.config['ga']['crossoverObjectCountMultiplier']))
+        if crossoverObjectCount < genomeSize:
+            for i in random.sample(xrange(0, genomeSize), crossoverObjectCount):
+                self.data[i] = copy.deepcopy(genomeB.data[i])
 
     def mutate(self):
         self._mutate()
@@ -68,14 +72,24 @@ class MeshGenome(Genome):
     def _create(self):
         self.data = []
         for i in range(0, config.config['ga']['genomeSize']):
-            obj = []
+            self.data.append(self._createObject())
+
+    def _createObject(self):
+        obj = []
+        for _ in [0,1,2]:
             obj.append([rand(self.meshConstraints[0]), rand(self.meshConstraints[1]), rand(self.meshConstraints[2])])
-            obj.append([rand(self.meshConstraints[0]), rand(self.meshConstraints[1]), rand(self.meshConstraints[2])])
-            obj.append([rand(self.meshConstraints[0]), rand(self.meshConstraints[1]), rand(self.meshConstraints[2])])
-            self._sortObjectPoints(obj)
-            self.data.append(obj)
+        self._sortObjectPoints(obj)
+        return obj
+
+    def _createWithCrossover(self, genomeA, genomeB):
+        super(MeshGenome, self)._createWithCrossover(genomeA, genomeB)
+        if config.config['ga']['genomeSize'] - len(self.data) > 0:
+            for _ in range(0, config.config['ga']['genomeSize']-len(self.data)):
+                self.data.append(self._createObject())
+
 
     def _sortObjectPoints(self, object):
+        """ sort object points clockwise """
         object.sort(lambda a, b: cmp(a[0], b[0]))
         left = object.pop(0)
         object.sort(lambda a, b: -cmp(a[1], b[1]))
@@ -84,7 +98,7 @@ class MeshGenome(Genome):
         object.insert(0, left)
 
     def _mutate(self):
-        objectCount = config.config['ga']['mutationObjectCount']
+        objectCount = int(math.ceil(config.config['ga']['mutationObjectCountMultiplier'] * config.config['ga']['genomeSize']))
         pointCount = config.config['ga']['mutationPointCount']
         coordinateCount = config.config['ga']['mutationCoordinateCount']
         randomizeMultiplier = config.config['ga']['mutationRandomizeMultiplier']
@@ -103,7 +117,7 @@ class TestGenome(Genome):
         self.data = [ int(random.randrange(0,2)) for i in range(0, config.config['ga']['genomeSize'])]
 
     def _mutate(self):
-        for i in random.sample(xrange(0, len(self.data)), config.config['ga']['mutationObjectCount']):
+        for i in random.sample(xrange(0, len(self.data)), config.config['ga']['mutationObjectCountMultiplier']):
             self.data[i] = int(randNumber(self.data[i], 2, config.config['ga']['mutationRandomizeMultiplier']))
         self.save()
 
@@ -116,9 +130,9 @@ class MetaGenome(Genome):
             'mutationRandomizeMultiplier': (0.1, 0.5, 1, 2),
             'generations': (400,),
             'selectionMultiplier': (0.25, 0.5),
-            'crossoverObjectCount': (1, 2, 3),
+            'crossoverObjectCountMultiplier': (0.1, 0.25, 0.5),
             'crossoverAllNew': (1,),
-            'mutationObjectCount': (1, 2, 3)
+            'mutationObjectCountMultiplier': (0.25, 0.5, 0.75)
         },
         'main': {
             'populationPath': '/media/dane/dokumenty/Galeria/3d/gen-gen/population_ram/',

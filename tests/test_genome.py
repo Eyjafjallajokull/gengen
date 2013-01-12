@@ -76,7 +76,7 @@ class TestMeshGenome(TestCase):
         mutatedData = self.object.data
         self.assert_data(mutatedData)
 
-        expectedMutatedObjects = self.cfg['ga']['mutationObjectCount']
+        expectedMutatedObjects = self.cfg['ga']['mutationObjectCountMultiplier'] * self.cfg['ga']['genomeSize']
         expectedMutatedPoints = self.cfg['ga']['mutationPointCount']
         expectedMutatedCoordinates = self.cfg['ga']['mutationCoordinateCount']
         mutatedObjects = 0

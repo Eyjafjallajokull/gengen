@@ -13,10 +13,10 @@ ga:
   selectionMultiplier: 0.25
   
   # ile obiektow genomu zostanie przeszczepionych
-  crossoverObjectCount: 1
+  crossoverObjectCountMultiplier: 0.1
   crossoverAllNew: 0
   
-  mutationObjectCount: 1
+  mutationObjectCountMultiplier: 0.5
   mutationPointCount: 3
   mutationCoordinateCount: 3
   mutationRandomizeMultiplier: 6

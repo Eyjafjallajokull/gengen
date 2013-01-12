@@ -13,10 +13,10 @@ ga:
   selectionMultiplier: 0.25
   
   # how many genome objects will be mixed in crossover
-  crossoverObjectCount: 50
+  crossoverObjectCountMultiplier: 0.25
   crossoverAllNew: 0
   
-  mutationObjectCount: 20
+  mutationObjectCountMultiplier: 0.5
   mutationPointCount: 3
   mutationCoordinateCount: 3
   mutationRandomizeMultiplier: 3
@@ -26,7 +26,7 @@ accuracy:
   mutationRandomizeMultiplier:
     multiplier: 0.5
     minimum: 0.1
-  mutationObjectCount:
+  mutationObjectCountMultiplier:
     multiplier: 0.75
     minimum: 1
     int: 1
