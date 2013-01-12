@@ -3,7 +3,6 @@ import pickle
 import numpy
 from PIL import Image
 
-cacheFile = 'tmp/cache.image'
 cache = None
 
 processPixelStep = 10
@@ -40,6 +39,7 @@ def compare(original, test):
     ''' Im mniejsza liczba tym bardziej obrazy sa podobne do siebie '''
     global cache
     if cache==None:
+        cacheFile = 'tmp' + os.sep + original.replace('/','_') + '.cache'
         if os.path.exists(cacheFile):
             cache = pickle.load(open(cacheFile))
         else:
