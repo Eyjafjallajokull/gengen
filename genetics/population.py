@@ -1,7 +1,6 @@
 import glob
 from multiprocessing import Pool
 from time import time
-from termcolor import colored
 import pickle
 import random
 from genetics.accuracy import AccuracyMachine
@@ -38,8 +37,9 @@ class Population():
         log.info('loaded %d genomes' % len(self.genomes))
 
     def initialize(self):
-        do('rm -f %s* tmp* cache*' % config.config['main']['populationRamPath'])
+        do('rm -f %s/*' % config.config['main']['populationRamPath'])
         do('mkdir %s' % config.config['main']['populationPath'])
+        do('echo > %s' % config.config['main']['logPath'])
         for i in range(0, config.config['ga']['populationSize']):
             genome = self.genomeType()
             genome.create()
