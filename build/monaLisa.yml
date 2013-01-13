@@ -2,7 +2,7 @@ main:
   populationPath: population/
   populationRamPath: population_ram/
   baseBlendPath: main.blend
-  baseImage: img/monaLista320.jpg
+  baseImage: img/monaLista.jpg
 
 ga:
   generations: 800

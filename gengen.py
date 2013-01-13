@@ -24,7 +24,7 @@ def closeRamDir(basePath, ramPath):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('command', metavar='COMMAND', help='command: init, evolve, tests')
-    parser.add_argument('-c','--config', metavar='CONFIG', default='config.yml', help='load alternative config file')
+    parser.add_argument('-c','--config', metavar='CONFIG', help='config file')
     #todo: add debug mode
 #    parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
     args = parser.parse_args()

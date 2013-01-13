@@ -135,9 +135,9 @@ class MetaGenome(Genome):
             'mutationObjectCountMultiplier': (0.25, 0.5, 0.75)
         },
         'main': {
-            'populationPath': '/media/dane/dokumenty/Galeria/3d/gen-gen/population_ram/',
+            'populationPath': '/media/dane/dokumenty/Galeria/3d/gen-gen/build/simple1_population/',
             'baseBlendPath': '/media/dane/dokumenty/Galeria/3d/gen-gen/main.blend',
-            'baseImage': '/media/dane/dokumenty/Galeria/3d/gen-gen/cmpOriginaleSmall.png'
+            'baseImage': '/media/dane/dokumenty/Galeria/3d/gen-gen/build/simple1.png'
         }
     }
     cfg = {
