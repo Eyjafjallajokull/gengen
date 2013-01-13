@@ -37,4 +37,10 @@ class TestAccuracyParam(TestBase):
                 self.assertEqual(real, cfg['start']*cfg['multiplier'])
             self.assertEqual(scaled, cfg['start']*cfg['multiplier'])
 
-
+    def test_limit(self):
+        cfg = self.data['float']
+        object = AccuracyParam('float', cfg, cfg['start'])
+        for _ in range(0,100):
+            object.increase()
+        self.assertGreaterEqual(object.currentValue, cfg['minimum'])
+        self.assertFalse(object.canIncrease())
