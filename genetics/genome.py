@@ -5,6 +5,7 @@ import pickle
 import random
 import copy
 import lib.config as config
+import lib.log as log
 
 class Genome(object):
     fitnessMachine = BaseFitnessMachine
@@ -45,6 +46,7 @@ class Genome(object):
         self.data = copy.deepcopy(genomeA.data)
         genomeSize = len(genomeA.data) if len(genomeA.data) < len(genomeB.data) else len(genomeB.data)
         crossoverObjectCount = int(math.ceil(genomeSize * config.config['ga']['crossoverObjectCountMultiplier']))
+        log.debug('%s crossover objects=%d' % (self.serial, crossoverObjectCount))
         if crossoverObjectCount < genomeSize:
             for i in random.sample(xrange(0, genomeSize), crossoverObjectCount):
                 self.data[i] = copy.deepcopy(genomeB.data[i])
@@ -102,6 +104,8 @@ class MeshGenome(Genome):
         pointCount = config.config['ga']['mutationPointCount']
         coordinateCount = config.config['ga']['mutationCoordinateCount']
         randomizeMultiplier = config.config['ga']['mutationRandomizeMultiplier']
+        log.debug('%s mutation: objects=%d points=%d coords=%d rand=%d' %
+                  (self.serial, objectCount, pointCount, coordinateCount, randomizeMultiplier))
         for object in random.sample(xrange(0,len(self.data)), objectCount):
             pointsToMutate = random.sample([0,1,2], pointCount)
             for point in pointsToMutate:

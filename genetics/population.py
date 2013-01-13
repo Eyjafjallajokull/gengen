@@ -35,6 +35,7 @@ class Population():
         for file in genomeFiles:
             genome = pickle.load(open(file))
             self.genomes.append(genome)
+        log.info('loaded %d genomes' % len(self.genomes))
 
     def initialize(self):
         do('rm -f %s* tmp* cache*' % config.config['main']['populationRamPath'])
@@ -43,7 +44,7 @@ class Population():
             genome = self.genomeType()
             genome.create()
             self.genomes.append(genome)
-        log.info('created population of %d genomes' % config.config['ga']['populationSize'])
+        log.info('initialized population of %d genomes' % config.config['ga']['populationSize'])
 
     def step(self):
         log.info('SUNRISE %d generation' % self.generation)
@@ -61,7 +62,7 @@ class Population():
         log.info('best genome %s-%d; average fitness %d'
                            % (bestGenome.serial, bestGenome.fitness,
                               reduce(lambda avg, g: avg + g.fitness, self.genomes, 0) / len(self.genomes)))
-
+        log.debug('genomeSize=%d' % config.config['ga']['genomeSize'])
         parents = self.selection()
         self.crossover(parents)
         log.info('%d s' % int(time() - start))
