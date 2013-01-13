@@ -1,12 +1,11 @@
 import argparse
 from unittest import TestLoader, TextTestRunner
+from genetics.accuracy import AccuracyMachine
 from genetics.population import Population
 from genetics.genome import *
 from lib.renderer.blender import BlenderRenderer
 from lib.config import readConfig
 from lib.log import initLogger
-
-
 
 def initRamDir(basePath, ramPath):
     tmp = ramPath
@@ -25,42 +24,37 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('command', metavar='COMMAND', help='command: init, evolve, tests')
     parser.add_argument('-c','--config', metavar='CONFIG', help='config file')
-    #todo: add debug mode
-#    parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
     args = parser.parse_args()
 
     if args.command=='tests':
         suite = TestLoader().discover('tests', pattern='*.py')
-        TextTestRunner(verbosity=2).run(suite)
-        exit(0)
+        result = TextTestRunner(verbosity=2).run(suite)
+        result = 0 if result.wasSuccessful() else 1
+        exit(result)
 
     cfg = readConfig(args.config)
     logger = initLogger()
     initRamDir(cfg['main']['populationPath'], cfg['main']['populationRamPath'])
 
-#    g = pickle.load(open('population_ram/1249448_genome.obj'))
-#    br = BlenderRenderer(cfg['main']['baseBlendPath'])
-#    br.renderToFile(g)
-#    ogr = OpenglRenderer()
-#    ogr.renderToScreen(g)
-#    exit()
+    renderer = BlenderRenderer()
+    fitnessMachine = MeshFitnessMachine(cfg['main']['baseImage'], renderer)
+    pop = Population(MeshGenome, fitnessMachine)
 
-    br = BlenderRenderer()
-    fm = MeshFitnessMachine(cfg['main']['baseImage'], br)
-    p = Population(MeshGenome)
-    p.fitnessMachine = fm
+    accuracyMachine = AccuracyMachine()
+    pop.add_event_listener('calculatedFitness', accuracyMachine.onCalculatedFitness)
+    pop.add_event_listener('lastGeneration', accuracyMachine.onLastGeneration)
 
     if args.command=='init':
-        p.initialize()
+        pop.initialize()
     elif args.command=='evolve':
-        p.load()
+        pop.load()
 
     try:
-        p.evolve()
+        pop.evolve()
     except KeyboardInterrupt as ki:
         pass
 
     closeRamDir(cfg['main']['populationPath'], cfg['main']['populationRamPath'])
 
-    best = p.getBestGenome()
+    best = pop.getBestGenome()
     print(best.serial, best.fitness)

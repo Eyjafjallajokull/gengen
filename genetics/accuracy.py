@@ -75,10 +75,17 @@ class AccuracyMachine:
                     log.info('genomeSize change triggered resetting of the other params')
                     break
 
-    def checkPopulation(self, population):
-        if population.getBestGenome().generation >= self.genomeGenerationTrigger:
-            return self.canIncrease()
-        return False
+    def onCalculatedFitness(self, event):
+        pop = event.data['population']
+        if pop.getBestGenome().generation >= self.genomeGenerationTrigger and self.canIncrease():
+            self.increase()
+            pop.resetGeneration()
 
-    def checkBeforeEnd(self):
-        return self.canIncrease()
+    def onLastGeneration(self, event):
+        pop = event.data['population']
+        if self.canIncrease():
+            self.increase()
+            pop.resetGeneration()
+
+
+

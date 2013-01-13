@@ -1,3 +1,4 @@
+from genetics.fitness import MeshFitnessMachine, BaseFitnessMachine
 from genetics.population import Population
 from genetics.genome import TestGenome
 from tests.test_base import TestBase
@@ -8,7 +9,7 @@ class TestPopulation(TestBase):
     def setUp(self):
         self.initConfig('basic')
         self.initLog()
-        self.population = Population(self.genomeType)
+        self.population = Population(self.genomeType, BaseFitnessMachine(None))
         self.population.pool._processes = 1
 
     def test_load_init(self):

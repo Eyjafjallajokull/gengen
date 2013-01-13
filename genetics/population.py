@@ -3,8 +3,8 @@ from multiprocessing import Pool
 from time import time
 import pickle
 import random
-from genetics.accuracy import AccuracyMachine
 from lib.common import do
+from lib.event import Event, EventDispatcher
 import lib.log as log
 import lib.config as config
 
@@ -17,15 +17,17 @@ def _poolFitnessCalculation(params):
     return genome
 
 
-class Population():
-    def __init__(self, genomeType):
+class Population(EventDispatcher):
+    def __init__(self, genomeType, fitnessMachine):
+        super(Population, self).__init__()
         self.pool = Pool(processes=4, maxtasksperchild=100)
         self.generation = 0
         self.genomeType = genomeType
         self.genomes = []
-        self.fitnessMachine = None
-        # todo: AccuracyMachine should listen for Population events
-        self.accuracyMachine = AccuracyMachine()
+        self.fitnessMachine = fitnessMachine
+
+    def _dispatch_event(self, type):
+        self.dispatch_event(Event(type, data={'population':self}))
 
     def load(self):
         genomeFiles = glob.glob(config.config['main']['populationRamPath'] + '*_genome.obj')
@@ -47,25 +49,22 @@ class Population():
         log.info('initialized population of %d genomes' % config.config['ga']['populationSize'])
 
     def step(self):
+        self._dispatch_event('stepStart')
         log.info('SUNRISE %d generation' % self.generation)
         start = time()
         self.calculateFitness()
+        self._dispatch_event('calculatedFitness')
 
-        self.genomes = sorted(self.genomes, cmp=lambda a, b: cmp(a.fitness, b.fitness))
-        if self.accuracyMachine.checkPopulation(self):
-            self.accuracyMachine.increase()
-            self.resetGeneration()
-
-        bestGenome = self.genomes[0]
-        log.debug(
-            'current population ' + ', '.join(map(lambda a: a.serial + '-' + str(a.fitness), self.genomes)))
+        bestGenome = self.getBestGenome()
+        log.debug('current population ' + ', '.join(map(lambda a: a.serial + '-' + str(a.fitness), self.genomes)))
         log.info('best genome %s-%d; average fitness %d'
-                           % (bestGenome.serial, bestGenome.fitness,
-                              reduce(lambda avg, g: avg + g.fitness, self.genomes, 0) / len(self.genomes)))
+                 % (bestGenome.serial, bestGenome.fitness,reduce(lambda avg, g: avg + g.fitness, self.genomes, 0) / len(self.genomes)))
         log.debug('genomeSize=%d' % config.config['ga']['genomeSize'])
+
         parents = self.selection()
         self.crossover(parents)
         log.info('%d s' % int(time() - start))
+        self._dispatch_event('stepEnd')
 
     def calculateFitness(self):
         log.debug('calculateFitness')
@@ -75,9 +74,9 @@ class Population():
 
     def selection(self):
         selectedGenomes = self._selectionTournament()
-        log.debug('selected %d genomes' % (len(selectedGenomes)))
-        selectedGenomes = sorted(selectedGenomes, cmp=lambda a, b: cmp(a.fitness, b.fitness))
-        log.debug(', '.join(map(lambda a: a.serial + '-' + str(a.fitness), selectedGenomes)))
+        #selectedGenomes = sorted(selectedGenomes, cmp=lambda a, b: cmp(a.fitness, b.fitness))
+        log.debug('selected %d genomes: %s' %
+                  (len(selectedGenomes), ', '.join(map(lambda a: a.serial + '-' + str(a.fitness), selectedGenomes))))
         return selectedGenomes
 
     def _selectionTournament(self):
@@ -135,8 +134,11 @@ class Population():
             self.genomes.append(genomeC)
 
     def getBestGenome(self):
-        self.genomes = sorted(self.genomes, cmp=lambda a, b: cmp(a.fitness, b.fitness))
-        return self.genomes[0]
+        best = self.genomes[0]
+        for genome in self.genomes:
+            if genome.fitness < best.fitness:
+                best = genome
+        return best
 
     def resetGeneration(self):
         log.info('resetGeneration')
@@ -151,6 +153,5 @@ class Population():
                 genome.generation += 1
                 genome.save()
             self.generation += 1
-            if self.generation == config.config['ga']['generations'] and self.accuracyMachine.checkBeforeEnd():
-                self.accuracyMachine.increase()
-                self.resetGeneration()
+            if self.generation == config.config['ga']['generations']:
+                self._dispatch_event('lastGeneration')
