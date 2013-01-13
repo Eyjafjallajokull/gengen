@@ -5,7 +5,7 @@ import lib.config as config
 
 def initLogger():
     global log
-    rawFormatter = logging.Formatter('%(asctime)s;%(caller)s;%(levelname)s %(message)s')
+    rawFormatter = logging.Formatter('%(asctime)s;%(caller)s;%(levelname)s;%(message)s')
     prettyFormatter = logging.Formatter('%(message)s')
     stdoutHandler = logging.StreamHandler(sys.stdout)
     stdoutHandler.setLevel(logging.INFO)
