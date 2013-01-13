@@ -10,7 +10,7 @@ class AccuracyParam:
         self.maximum = cfg['maximum'] if 'maximum' in cfg else None
         self.originalValue = currentValue
         self.resetToOriginalValue()
-        if 'int' in cfg:
+        if 'int' in cfg and cfg['int']==1:
             self.cast = lambda x: int(math.ceil(x))
         else:
             self.cast = float
@@ -23,9 +23,7 @@ class AccuracyParam:
         self.currentValue = self.originalValue
 
     def getNextValue(self):
-        currentValue = self.currentValue
-        scaledValue = self.scaledValue
-        scaledValue *= self.multiplier
+        scaledValue = self.scaledValue * self.multiplier
         currentValue = self.cast(scaledValue)
         return (currentValue, scaledValue)
 

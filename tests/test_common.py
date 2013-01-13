@@ -1,7 +1,7 @@
-from unittest import TestCase
+from tests.test_base import TestBase
 from lib.common import randNumber
 
-class TestRandNumber(TestCase):
+class TestRandNumber(TestBase):
     def test_randNumber(self):
         arguments = (
             (10, 20, 1),

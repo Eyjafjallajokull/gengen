@@ -1,12 +1,11 @@
 import copy
 import os
-from unittest import TestCase
+from tests.test_base import TestBase
 from genetics.genome import Genome, MeshGenome
-from lib.config import readConfig
 
-class TestGenome(TestCase):
+class TestGenome(TestBase):
     def setUp(self):
-        self.cfg = readConfig('tests/fixtures/config/basic.yml')
+        self.initConfig('basic')
         self.object = Genome()
 
     def tearDown(self):
@@ -41,9 +40,9 @@ class TestGenome(TestCase):
         self.assertFalse(self.object.dataModified)
         self.assertEqual(self.object.fitness, 123)
 
-class TestMeshGenome(TestCase):
+class TestMeshGenome(TestBase):
     def setUp(self):
-        self.cfg = readConfig('tests/fixtures/config/basic.yml')
+        self.initConfig('basic')
         self.object = MeshGenome()
 
     def tearDown(self):

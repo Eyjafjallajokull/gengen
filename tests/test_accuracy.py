@@ -1,16 +1,40 @@
-import logging
-from unittest import TestCase
-from genetics.accuracy import AccuracyMachine
-from lib.config import readConfig
-import lib.log as log
+import math
+from tests.test_base import TestBase
+from genetics.accuracy import AccuracyMachine, AccuracyParam
 
-class TestGenome(TestCase):
+class TestAccuracyMachine(TestBase):
     def setUp(self):
-        self.cfg = readConfig('tests/fixtures/config/basic.yml')
-        log.log = logging.getLogger('population')
-        log.log.addHandler(logging.NullHandler())
+        self.initConfig('basic')
+        self.initLog()
         self.object = AccuracyMachine()
 
-    def tearDown(self):
-        self.object.remove()
-    #todo: implement tests
+class TestAccuracyParam(TestBase):
+    data = {
+        'float': {
+            'multiplier': 0.5,
+            'minimum': 0.1,
+            'int': 0,
+            'start': 3
+        },
+        'int': {
+            'multiplier': 0.5,
+            'minimum': 0.1,
+            'int': 1,
+            'start': 3
+        }
+    }
+
+    def setUp(self):
+        self.initLog()
+
+    def test_getNextValue(self):
+        for (name, cfg) in self.data.items():
+            object = AccuracyParam(name, cfg, cfg['start'])
+            (real, scaled) = object.getNextValue()
+            if cfg['int'] == 1:
+                self.assertEqual(real, int(math.ceil(cfg['start']*cfg['multiplier'])))
+            else:
+                self.assertEqual(real, cfg['start']*cfg['multiplier'])
+            self.assertEqual(scaled, cfg['start']*cfg['multiplier'])
+
+

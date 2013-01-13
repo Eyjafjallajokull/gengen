@@ -1,17 +1,13 @@
-import logging
-import unittest
 from genetics.population import Population
 from genetics.genome import TestGenome
-from lib.config import readConfig
-import lib.log as log
+from tests.test_base import TestBase
 
-class TestPopulation(unittest.TestCase):
+class TestPopulation(TestBase):
     genomeType = TestGenome
 
     def setUp(self):
-        self.cfg = readConfig('tests/fixtures/config/basic.yml')
-        log.log = logging.getLogger('population')
-        log.log.addHandler(logging.NullHandler())
+        self.initConfig('basic')
+        self.initLog()
         self.population = Population(self.genomeType)
         self.population.pool._processes = 1
 
