@@ -16,7 +16,9 @@ currentBlendPath = populationPath+serial+'.blend'
 meshDataPath = populationPath+serial+'_data.obj'
 
 meshData = pickle.load(open(meshDataPath, 'rb'))
-
+if meshData == None:
+	raise Exception('Failed to read meshData file '+meshDataPath)
+	
 first = Object('First')
 for object in meshData:
     clone = first.clone()
