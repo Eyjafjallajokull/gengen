@@ -1,11 +1,12 @@
 main:
-  populationPath: population/
-  populationRamPath: population_ram/
+  populationPath: build/monaLisa_population/
+  populationRamPath: tmp/monaLisa_population/
+  baseImage: build/monaLisa.jpg
   baseBlendPath: main.blend
-  baseImage: img/monaLista.jpg
+  triangleSize: 0.5
 
 ga:
-  generations: 800
+  generations: 100
   populationSize: 25
   genomeSize: 300
   
@@ -16,10 +17,10 @@ ga:
   crossoverObjectCountMultiplier: 0.25
   crossoverAllNew: 0
   
-  mutationObjectCountMultiplier: 0.5
+  mutationObjectCountMultiplier: 0.1
   mutationPointCount: 3
   mutationCoordinateCount: 3
-  mutationRandomizeMultiplier: 3
+  mutationRandomizeMultiplier: 2
   
 accuracy:
   trigger: 25 # number of generations of best genome

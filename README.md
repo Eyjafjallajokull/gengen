@@ -16,3 +16,8 @@ At this moment algorithm is able to generate models for very simple shapes, and 
 * result image
 * 3d model screen
 * time, generations, renders, config
+
+## Requirements
+
+sudo apt-get install blender
+pip install pyyaml

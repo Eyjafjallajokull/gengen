@@ -1,190 +1,149 @@
-from Image import FLIP_LEFT_RIGHT
-import pickle
-
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
-import sys
-from base import BaseRenderer
+from pyglet.gl import *
 from PIL import Image
-from math import sqrt
-from lib.common import do
-
-# this is pure opengl, it cant look nice
-
-ESCAPE = '\033'
-
-# Number of the glut window.
-window = 0
-meshData = []
-LightAmbientColor = ( .5, .5, .5, 1 )
-LightDiffuseColor = ( .9, .9, .9, 1 )
-LightPosition = ( 0.0, 4.0, -2.0, 1)
-
-dineAndDash = False
-dine = None
-size = None
-# A general OpenGL initialization function.  Sets all of the initial parameters. 
-def InitGL(Width, Height):                # We call this right after our OpenGL window is created.
-    glClearColor(1.0, 1.0, 1.0, 0.0)    # This Will Clear The Background Color To Black
-    glClearDepth(1.0)                    # Enables Clearing Of The Depth Buffer
-    glDepthFunc(GL_LEQUAL)                # The Type Of Depth Test To Do
-    glEnable(GL_DEPTH_TEST)                # Enables Depth Testing
-    glShadeModel(GL_FLAT)                # Enables Smooth Color Shading
-
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()                    # Reset The Projection Matrix
-    # Calculate The Aspect Ratio Of The Window
-    gluPerspective(45.0, float(Width) / float(Height), 0.1, 100.0)
-
-    glMatrixMode(GL_MODELVIEW)
-
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuseColor)        # Setup The Diffuse Light
-    glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbientColor)        # Setup The Ambient Light
-    glLightfv(GL_LIGHT0, GL_POSITION, LightPosition)    # Position The Light
-    #glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, (0,0,0))    # Position The Light
-    #glLightfv(GL_LIGHT0, GL_SPOT_EXPONENT, 128)    # Position The Light
-    #glLightfv(GL_LIGHT0, GL_SPOT_CUTOFF, 90)    # Position The Light
+from sys import argv
+import pyglet
+import pickle
+import numpy
 
 
-    glEnable(GL_LIGHT0)
+def vec(*args):
+    return (GLfloat * len(args))(*args)
+
+
+def setup(visible=False):
+    global window
+    window = pyglet.window.Window(320, 240, caption='POMPA', resizable=False, visible=visible)
+    window.on_resize = on_resize
+    window.on_draw = on_draw
+
+    glClearColor(1, 1, 1, 1)
+    glColor3f(.5, .5, .5)
+    glEnable(GL_DEPTH_TEST)
+    glDepthFunc(GL_LESS)
+    glEnable(GL_CULL_FACE) # if this is set: vertex direction matters
+    glFrontFace(GL_CW)
+    glCullFace(GL_BACK)
+    # glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) # render mesh
+    glEnable(GL_NORMALIZE)
+    glShadeModel(GL_SMOOTH)
     glEnable(GL_LIGHTING)
-    #glLightModelfv(GL_LIGHT_MODEL_AMBIENT, (.5,.5,.5,1));
+    glEnable(GL_LIGHT0)
 
-# The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
-def ReSizeGLScene(Width, Height):
-    if Height == 0:                        # Prevent A Divide By Zero If The Window Is Too Small
-        Height = 1
+    glEnable(GL_COLOR_MATERIAL)
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT)
 
-    glViewport(0, 0, Width, Height)        # Reset The Current Viewport And Perspective Transformation
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, vec(0, 0, 0, 1.0))
+
+    glLightfv(GL_LIGHT0, GL_POSITION, vec(0, .5, .5, 0))
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, vec(1, 1, 1, 1))
+    glLightfv(GL_LIGHT0, GL_AMBIENT, vec(0.5, 0.5, 0.5, 1))
+    glLightfv(GL_LIGHT0, GL_SPECULAR, vec(1, 1, 1, 1))
+    # glLightfv(GL_LIGHT0, GL_SPOT_CUTOFF, GLfloat(30.0))
+    # glLightfv(GL_LIGHT0, GL_SPOT_EXPONENT, GLfloat(60.0))
+    # glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, vec(0, -12, -2))
+
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(1, 1, 1, 1))
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(1, 1, 1, 1))
+    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, vec(0, 0, 0, 1))
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50)
+
+
+def on_resize(width, height):
+    glViewport(0, 0, width, height)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(45.0, float(Width) / float(Height), 0.1, 100.0)
+    gluPerspective(35., width / float(height), 0.1, 100.)
     glMatrixMode(GL_MODELVIEW)
 
-# The main drawing function. 
-def DrawGLScene():
-    # Clear The Screen And The Depth Buffer
+
+def triangle_normal(triangle):
+    v = [triangle[1][i] - triangle[0][i] for i in range(3)]
+    u = [triangle[2][i] - triangle[0][i] for i in range(3)]
+    nx = u[1]*v[2] - u[2]*v[1]
+    ny = u[2]*v[0] - u[0]*v[2]
+    nz = u[0]*v[1] - u[1]*v[0]
+    glNormal3f(nx, ny, nz)
+
+    # if dot_product(normal, ??) > 0: then swap vertices and recalculate normal
+    # if sum(p*q for p, q in zip((nx, ny, nz), (0, 0, 1))) > 0:
+    #     triangle_normal([triangle[1], triangle[0], triangle[2]])
+
+
+def triangle_fix_order(triangle):
+    maximums = numpy.argmax(triangle, axis=0)
+    top = triangle[maximums[1]]
+    del triangle[maximums[1]]
+    maximums = numpy.argmax(triangle, axis=0)
+    right = triangle[maximums[0]]
+    del triangle[maximums[0]]
+    return [top, right, triangle[0]]
+
+
+def on_draw():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glLoadIdentity()                    # Reset The View
-    glFrontFace(GL_CW);
-    # Move Left 1.5 units and into the screen 6.0 units.
-    glTranslatef(0, 0.0, -12.0)
+    glLoadIdentity()
+    glTranslatef(0, 0, -16)
 
-    for objectData in meshData:
-        drawTriangle(objectData)
-
-    # Move Right 3.0 units.
-    glTranslatef(0.0, 0.0, 0.0)
-
-    #  since this is double buffered, swap the buffers to display what just got drawn.
-    glutSwapBuffers()
-
-    if dineAndDash:
-        global dine
-        dine = glReadPixels(0, 0, size[0], size[1], GL_RGB, GL_FLOAT).reshape((size[0] * size[1], -1))
-        glutLeaveMainLoop()
+    for triangle in data:
+        if len(triangle) < 3:
+            continue
+        glBegin(GL_TRIANGLES)
+        # triangle = triangle_fix_order(triangle)
+        triangle_normal(triangle)
+        for vertex in triangle:
+            glVertex3f(*vertex)
+        glEnd()
 
 
-
-def createNormal(o):
-    a = [0,0,0]
-    b = [0,0,0]
-    c = [0,0,0]
-    a[0] = o[0][0] - o[1][0]
-    a[1] = o[0][1] - o[1][1]
-    a[2] = o[0][2] - o[1][2]
-    b[0] = o[1][0] - o[2][0]
-    b[1] = o[1][1] - o[2][1]
-    b[2] = o[1][2] - o[2][2]
-    c[0] = (a[1] * b[2]) - (a[2] * b[1])
-    c[1] = (a[2] * b[0]) - (a[0] * b[2])
-    c[2] = (a[0] * b[1]) - (a[1] * b[0])
-    return normalize(c)
-
-def normalize(v):
-    len = sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]))
-    if len == 0:
-        len = 1.0
-    v[0] /= len
-    v[1] /= len
-    v[2] /= len
-    return v
+def save_and_exit(dt):
+    print 'saving %s' % target_file
+    buffer = (GLubyte * (3 * window.width * window.height))(0)
+    glReadPixels(0, 0, window.width, window.height, GL_RGB, GL_UNSIGNED_BYTE, buffer)
+    image = Image.frombytes(mode="RGB", size=(window.width, window.height), data=buffer)
+    image = image.transpose(Image.FLIP_TOP_BOTTOM)
+    image.save(target_file)
+    window.close()
 
 
-def drawTriangle(objectData):
-    glBegin(GL_POLYGON)                 # Start drawing a polygon
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, (.5,.5,.5,1))
-    normal = createNormal(objectData)
-    normal[2] = -normal[2]
-    glNormal3fv(normal)
-    for v in objectData:
-        glVertex3f(v[0], v[1], v[2])
-    glEnd()
+def read_data_from_file():
+    global target_file, data
+    source_file = argv[1]
+    target_file = source_file.replace('_data.obj', '.png')
+    data = pickle.load(open(source_file, 'r'))
+    print 'read %d objects' % len(data)
 
 
-# The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)  
-def keyPressed(*args):
-# If escape is pressed, kill everything.
-    if args[0] == ESCAPE:
-        glutDestroyWindow(window)
-        sys.exit()
-
-def draw(size):
-    global window
-    glutInit(())
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH)
-    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION)
-    glutInitWindowSize(size[0], size[1])
-    glutInitWindowPosition(0, 0)
-    window = glutCreateWindow("POMPA")
-    glutDisplayFunc(DrawGLScene)
-    glutIdleFunc(DrawGLScene)
-    glutReshapeFunc(ReSizeGLScene)
-    glutKeyboardFunc(keyPressed)
-    InitGL(size[0], size[1])
+def render_to_file():
+    pyglet.clock.schedule_once(save_and_exit, 0.05)
 
 
-def main(size):
-    draw(size)
-    # Start Event Processing Engine
-    glutMainLoop()
+def render_to_screen():
+    def on_key_press(symbol, modifiers):
+        save_and_exit(None)
+    window.push_handlers(on_key_press)
 
-def getPixelData(sizeIn, meshDataIn):
-    global meshData, dineAndDash, size
-    meshData = meshDataIn
-    dineAndDash =True
-    size = sizeIn
-    main(size)
-    return dine
 
-class OpenglRenderer(BaseRenderer):
-    size = (320,240)
-
-    def _renderToFile(self, genome):
-        # todo: this is very slow
-        pixels = getPixelData(self.size, genome.data) *255
-        pixels.astype(int)
-        pixels = [ tuple(pixel) for pixel in pixels ]
-        pixels.reverse()
-        i = Image.new('RGB', self.size)
-        i.putdata(pixels) # putdata oczekuje [ (255,255,0), ... ]
-        i.transpose(FLIP_LEFT_RIGHT).save(genome.pngPath)
-        #i.save(genome.pngPath)
-    def renderToFile(self, genome):
-        do('python lib/renderer/opengl.py '+genome.serial)
-
-    def renderToScreen(self, genome):
-        global meshData
-        meshData = genome.data
-        main(self.size)
+def render_now(target, genome_data):
+    global target_file, data
+    target_file = target
+    data = genome_data
+    setup(visible=True)
+    render_to_file()
+    pyglet.app.run()
 
 
 
-def renderToMemory(self, genome):
-        return getPixelData(size, genome.data)
+target_file = None
+data = None
+window = None
 
 if __name__ == '__main__':
-    renderer = OpenglRenderer()
-    sys.path.append('.')
-    renderer._renderToFile(pickle.load(open('population_ram/'+sys.argv[1]+'_genome.obj')))
+    read_data_from_file()
+    if argv[2] == 'file':
+        setup(visible=True)
+        render_to_file()
+    else:
+        setup(visible=True)
+        render_to_screen()
+    pyglet.app.run()
+

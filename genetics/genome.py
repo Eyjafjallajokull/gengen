@@ -64,7 +64,7 @@ class Genome(object):
 
 class MeshGenome(Genome):
     fitnessMachine = MeshFitnessMachine
-    meshConstraints = (7+3, 5+3, 3)
+    meshConstraints = (7, 5, 1)
     def __init__(self, serial=None):
         super(MeshGenome, self).__init__(serial)
         self.blendPath = config.config['main']['populationRamPath']+self.serial+'.blend'
@@ -77,16 +77,18 @@ class MeshGenome(Genome):
             self.data.append(self._createObject())
 
     def _createObject(self):
-        obj = []
-        for _ in [0,1,2]:
-            obj.append([rand(self.meshConstraints[0]), rand(self.meshConstraints[1]), rand(self.meshConstraints[2])])
+        obj = [[rand(self.meshConstraints[0]), rand(self.meshConstraints[1]), rand(self.meshConstraints[2])]]
+        for _ in [1,2]:
+            i = rand(1)*config.config['main']['triangleSize']
+            obj.append([obj[0][0]+rand(i), obj[0][1]+rand(i), obj[0][2]+rand(i)])
         self._sortObjectPoints(obj)
         return obj
 
     def _createWithCrossover(self, genomeA, genomeB):
         super(MeshGenome, self)._createWithCrossover(genomeA, genomeB)
-        if config.config['ga']['genomeSize'] - len(self.data) > 0:
-            for _ in range(0, config.config['ga']['genomeSize']-len(self.data)):
+        missing_object_count = config.config['ga']['genomeSize'] - len(self.data)
+        if missing_object_count > 0:
+            for _ in range(0, missing_object_count):
                 self.data.append(self._createObject())
 
 
@@ -112,7 +114,7 @@ class MeshGenome(Genome):
                 coordinatesToMutate = random.sample([0,1,2], coordinateCount)
                 for coordinate in coordinatesToMutate:
                     self.data[object][point][coordinate] = randNumber(self.data[object][point][coordinate],
-                        self.meshConstraints[coordinate], randomizeMultiplier)
+                        self.meshConstraints[coordinate]+2, randomizeMultiplier)
             self._sortObjectPoints(self.data[object])
 
 class TestGenome(Genome):

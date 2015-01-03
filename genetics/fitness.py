@@ -1,4 +1,7 @@
 from lib import image
+from time import time
+import lib.log as log
+
 
 class BaseFitnessMachine(object):
     def __init__(self, target):
@@ -7,14 +10,18 @@ class BaseFitnessMachine(object):
     def calculate(self, genome):
         pass
 
+
 class MeshFitnessMachine(BaseFitnessMachine):
     def __init__(self, target, renderer):
-        self.target = target
+        super(MeshFitnessMachine, self).__init__(target)
         self.renderer = renderer
 
     def calculate(self, genome):
+        start = time()
         self.renderer.renderToFile(genome)
+        log.debug('render time %f' % (time()-start))
         return image.compare(self.target, genome.pngPath)
+
 
 class TestFitnessMachine(BaseFitnessMachine):
     def calculate(self, genome):

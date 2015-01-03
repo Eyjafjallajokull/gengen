@@ -63,7 +63,7 @@ class Population(EventDispatcher):
 
         parents = self.selection()
         self.crossover(parents)
-        log.info('%d s' % int(time() - start))
+        log.debug('%d s' % int(time() - start))
         self._dispatch_event('stepEnd')
 
     def calculateFitness(self):

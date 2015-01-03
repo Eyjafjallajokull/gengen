@@ -1,0 +1,42 @@
+main:
+  populationPath: build/simple1_population/
+  populationRamPath: tmp/simple1_population/
+  baseImage: build/simple1.png
+  baseBlendPath: main.blend
+  triangleSize: 1
+
+ga:
+  generations: 100
+  populationSize: 20
+  genomeSize: 30
+
+  selectionMultiplier: 0.25
+
+  crossoverObjectCountMultiplier: 0.2
+  crossoverAllNew: 0
+  
+  mutationObjectCountMultiplier: 0.1
+  mutationPointCount: 3
+  mutationCoordinateCount: 3
+  mutationRandomizeMultiplier: 2
+  
+accuracy:
+  trigger: 40
+#  genomeSize:
+#    multiplier: 1.05
+#    maximum: 100
+#    int: 1
+  mutationRandomizeMultiplier:
+    multiplier: 0.9
+    minimum: 0.1
+#  mutationObjectCountMultiplier:
+#    multiplier: 0.98
+#    minimum: 0.1
+#  mutationPointCount:
+#    multiplier: 0.95
+#    minimum: 1
+#    int: 1
+#  mutationCoordinateCount:
+#    multiplier: 0.95
+#    minimum: 1
+#    int: 1

@@ -6,6 +6,8 @@ from genetics.genome import *
 from lib.renderer.blender import BlenderRenderer
 from lib.config import readConfig
 from lib.log import initLogger
+from lib.renderer.opengl_renderer import OpenglRenderer
+
 
 def initRamDir(basePath, ramPath):
     tmp = ramPath
@@ -23,10 +25,10 @@ def closeRamDir(basePath, ramPath):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('command', metavar='COMMAND', help='command: init, evolve, tests')
-    parser.add_argument('-c','--config', metavar='CONFIG', help='config file')
+    parser.add_argument('-c', '--config', metavar='CONFIG', help='config file')
     args = parser.parse_args()
 
-    if args.command=='tests':
+    if args.command == 'tests':
         suite = TestLoader().discover('tests', pattern='*.py')
         result = TextTestRunner(verbosity=2).run(suite)
         result = 0 if result.wasSuccessful() else 1
@@ -36,7 +38,8 @@ if __name__ == '__main__':
     logger = initLogger()
     initRamDir(cfg['main']['populationPath'], cfg['main']['populationRamPath'])
 
-    renderer = BlenderRenderer()
+    # renderer = BlenderRenderer()
+    renderer = OpenglRenderer()
     fitnessMachine = MeshFitnessMachine(cfg['main']['baseImage'], renderer)
     pop = Population(MeshGenome, fitnessMachine)
 
@@ -44,9 +47,9 @@ if __name__ == '__main__':
     pop.add_event_listener('calculatedFitness', accuracyMachine.onCalculatedFitness)
     pop.add_event_listener('lastGeneration', accuracyMachine.onLastGeneration)
 
-    if args.command=='init':
+    if args.command == 'init':
         pop.initialize()
-    elif args.command=='evolve':
+    elif args.command == 'evolve':
         pop.load()
 
     try:
