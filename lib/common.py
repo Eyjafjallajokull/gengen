@@ -32,6 +32,8 @@ def rand(absMax):
 
 def randNumber(number, absMax, factor):
     new = number
+    if abs(number) > absMax:
+        number *= 0.9
     while True:
         new = number + (random.random()-0.5)*factor
         if abs(new)<absMax: break
