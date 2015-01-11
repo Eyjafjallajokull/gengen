@@ -8,12 +8,14 @@ from lib.event import Event, EventDispatcher
 import lib.log as log
 import lib.config as config
 
+
 def _poolFitnessCalculation(params):
-    (fitnessMachine, genome) = params
+    (fitness_machine, genome) = params
     try:
-        fitness = fitnessMachine.calculate(genome)
+        fitness = fitness_machine.calculate(genome)
         genome.setFitness(fitness)
-    except KeyboardInterrupt: pass
+    except KeyboardInterrupt:
+        pass
     return genome
 
 
@@ -33,9 +35,12 @@ class Population(EventDispatcher):
         genomeFiles = glob.glob(config.config['main']['populationRamPath'] + '*_genome.obj')
         if len(genomeFiles)==0:
             raise Exception('no genomes found under '+config.config['main']['populationRamPath'])
-        for file in genomeFiles:
-            genome = pickle.load(open(file))
-            self.genomes.append(genome)
+        for genome_file in genomeFiles:
+            try:
+                genome = pickle.load(open(genome_file))
+                self.genomes.append(genome)
+            except EOFError:
+                log.error("could not load genome from file %s" % genome_file)
         log.info('loaded %d genomes' % len(self.genomes))
 
     def initialize(self):

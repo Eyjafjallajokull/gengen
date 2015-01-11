@@ -15,13 +15,14 @@ def initRamDir(basePath, ramPath):
         tmp = tmp[0:-1]
     if do('mount | grep %s'% tmp, True):
         do('mkdir %s' % ramPath)
-        do('sudo mount -osize=100m tmpfs %s -t tmpfs' % ramPath, False, True)
+        do('sudo mount -osize=254m tmpfs %s -t tmpfs' % ramPath, False, True)
         do('cp -r %s/* %s'%(basePath, ramPath))
 
 def closeRamDir(basePath, ramPath):
     do('rm -rf %s/*' % basePath, False)
     do('cp -r %s/* %s'%(ramPath, basePath), False)
-
+from lib import dl
+dl.trace_start("trace.html")
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('command', metavar='COMMAND', help='command: init, evolve, tests')
@@ -38,8 +39,8 @@ if __name__ == '__main__':
     logger = initLogger()
     initRamDir(cfg['main']['populationPath'], cfg['main']['populationRamPath'])
 
-    # renderer = BlenderRenderer()
     renderer = OpenglRenderer()
+    renderer = BlenderRenderer()
     fitnessMachine = MeshFitnessMachine(cfg['main']['baseImage'], renderer)
     pop = Population(MeshGenome, fitnessMachine)
 

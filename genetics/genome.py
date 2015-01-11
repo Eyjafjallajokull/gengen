@@ -4,6 +4,8 @@ from lib.common import *
 import pickle
 import random
 import copy
+import glob
+import os
 import lib.config as config
 import lib.log as log
 
@@ -30,7 +32,10 @@ class Genome(object):
         pickle.dump(self, open(self.objPath, 'wb'))
 
     def remove(self):
-        do('rm -f %s' % config.config['main']['populationRamPath']+self.serial+'*')
+        file_list = glob.glob(config.config['main']['populationRamPath']+self.serial+'*')
+        for f in file_list:
+            os.remove(f)
+        # do('timeout 3s rm -f %s' % (config.config['main']['populationRamPath']+self.serial+'*'))
 
     def create(self):
         self._create()
@@ -62,9 +67,11 @@ class Genome(object):
     def _mutate(self): pass
     def _create(self): pass
 
+
 class MeshGenome(Genome):
     fitnessMachine = MeshFitnessMachine
     meshConstraints = (7, 5, 1)
+
     def __init__(self, serial=None):
         super(MeshGenome, self).__init__(serial)
         self.blendPath = config.config['main']['populationRamPath']+self.serial+'.blend'
@@ -78,7 +85,7 @@ class MeshGenome(Genome):
 
     def _createObject(self):
         obj = [[rand(self.meshConstraints[0]), rand(self.meshConstraints[1]), rand(self.meshConstraints[2])]]
-        for _ in [1,2]:
+        for _ in [1, 2]:
             i = rand(1)*config.config['main']['triangleSize']
             obj.append([obj[0][0]+rand(i), obj[0][1]+rand(i), obj[0][2]+rand(i)])
         self._sortObjectPoints(obj)

@@ -26,7 +26,7 @@ def _diffImages(m1, m2):
             return -1
         s = 0
         for band_index in range(len(m1)):
-            s += numpy.sum(numpy.abs(  m1[band_index] - m2[band_index]) )
+            s += numpy.sum(numpy.abs(m1[band_index] - m2[band_index]))
     else:
         try:
             s = numpy.sum(numpy.abs(numpy.array(m1[::processPixelStep]) - numpy.array(m2[::processPixelStep])))
@@ -39,7 +39,7 @@ def compare(original, test):
     ''' Im mniejsza liczba tym bardziej obrazy sa podobne do siebie '''
     global cache
     if cache==None:
-        cacheFile = 'tmp' + os.sep + original.replace('/','_') + '.cache'
+        cacheFile = 'tmp' + os.sep + original.replace('/', '_') + '.cache'
         if os.path.exists(cacheFile):
             cache = pickle.load(open(cacheFile))
         else:

@@ -2,6 +2,7 @@ import os
 import pickle
 from lib.common import do
 from lib.renderer.base import BaseRenderer
+import socket
 
 
 class OpenglRenderer(BaseRenderer):
@@ -10,11 +11,19 @@ class OpenglRenderer(BaseRenderer):
 
     def renderToFile(self, genome):
         # proces
-        pickle.dump(genome.data, open(genome.dataPath, 'wb'))
-        do('python lib/renderer/opengl.py %s file 2>&1 >> %s' % (genome.dataPath, genome.logPath))
+        # pickle.dump(genome.data, open(genome.dataPath, 'wb'))
+        # do('python lib/renderer/opengl.py %s file 2>&1 >> %s' % (genome.dataPath, genome.logPath))
 
-        # watek
-        # opengl.render_now(genome.pngPath, genome.data)
+        # serwer renderowania
+        pickle.dump(genome.data, open(genome.dataPath, 'wb'))
+        HOST, PORT = "localhost", 6007
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            sock.connect((HOST, PORT))
+            sock.sendall(str(genome.dataPath) + "\n")
+            sock.recv(1024)
+        finally:
+            sock.close()
 
         if not os.path.exists(genome.pngPath):
             raise Exception('Opengl failed to render image %s' % genome.pngPath)

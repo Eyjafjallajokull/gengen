@@ -3,13 +3,12 @@ main:
   populationRamPath: tmp/monaLisa_population/
   baseImage: build/monaLisa.jpg
   baseBlendPath: main.blend
-  triangleSize: 0.5
+  triangleSize: 2
 
 ga:
   generations: 100
-  populationSize: 25
-  genomeSize: 300
-  
+  populationSize: 30
+  genomeSize: 666
   # what part of population will be selected
   selectionMultiplier: 0.25
   
@@ -17,20 +16,20 @@ ga:
   crossoverObjectCountMultiplier: 0.25
   crossoverAllNew: 0
   
-  mutationObjectCountMultiplier: 0.1
-  mutationPointCount: 3
-  mutationCoordinateCount: 3
-  mutationRandomizeMultiplier: 2
+  mutationObjectCountMultiplier: 0.05
+  mutationPointCount: 2
+  mutationCoordinateCount: 1
+  mutationRandomizeMultiplier: 0.5
   
 accuracy:
-  trigger: 25 # number of generations of best genome
+  trigger: 100 # number of generations of best genome
   mutationRandomizeMultiplier:
-    multiplier: 0.5
+    multiplier: 0.9
     minimum: 0.1
   mutationObjectCountMultiplier:
-    multiplier: 0.75
-    minimum: 1
-    int: 1
+    multiplier: 0.9
+    minimum: 0.1
+    # int: 1
   mutationPointCount:
     multiplier: 0.75
     minimum: 1

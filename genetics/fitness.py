@@ -20,7 +20,9 @@ class MeshFitnessMachine(BaseFitnessMachine):
         start = time()
         self.renderer.renderToFile(genome)
         log.debug('render time %f' % (time()-start))
-        return image.compare(self.target, genome.pngPath)
+        fitness = image.compare(self.target, genome.pngPath)
+        log.debug('calculated fitness for %s: %s' % (genome.serial, fitness))
+        return fitness
 
 
 class TestFitnessMachine(BaseFitnessMachine):

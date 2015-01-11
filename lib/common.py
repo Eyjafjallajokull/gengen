@@ -10,7 +10,7 @@ def do(cmd, returncode = False, output = False):
         shell = True,
         stdin = sys.stdin if output else subprocess.PIPE,
         stdout = sys.stdout if output else subprocess.PIPE,
-        stderr = sys.stderr if output else subprocess.PIPE)
+        stderr = sys.stderr if output else subprocess.PIPE, close_fds=True)
 
     if output:
         stdout = ''
@@ -32,8 +32,8 @@ def rand(absMax):
 
 def randNumber(number, absMax, factor):
     new = number
-    if abs(number) > absMax:
-        number *= 0.9
+    while abs(number) > absMax:
+        number *= 0.95
     while True:
         new = number + (random.random()-0.5)*factor
         if abs(new)<absMax: break
