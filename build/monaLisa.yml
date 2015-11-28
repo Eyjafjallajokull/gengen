@@ -6,7 +6,7 @@ main:
   triangleSize: 2
 
 ga:
-  generations: 100
+  generations: 300
   populationSize: 30
   genomeSize: 666
   # what part of population will be selected

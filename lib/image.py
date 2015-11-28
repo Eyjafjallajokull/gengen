@@ -46,7 +46,6 @@ def compare(original, test):
             img = Image.open(original)
             cache = _imageData(img)
             pickle.dump(cache, open(cacheFile, 'w'))
-
     diff = _diffImages(cache, _imageData(Image.open(test)))
     return diff
 

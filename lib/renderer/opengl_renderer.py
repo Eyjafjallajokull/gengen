@@ -16,7 +16,7 @@ class OpenglRenderer(BaseRenderer):
 
         # serwer renderowania
         pickle.dump(genome.data, open(genome.dataPath, 'wb'))
-        HOST, PORT = "localhost", 6007
+        HOST, PORT = "localhost", 6010
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             sock.connect((HOST, PORT))

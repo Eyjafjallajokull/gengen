@@ -3,6 +3,7 @@ from multiprocessing import Pool
 from time import time
 import pickle
 import random
+import multiprocessing
 from lib.common import do
 from lib.event import Event, EventDispatcher
 import lib.log as log
@@ -74,8 +75,17 @@ class Population(EventDispatcher):
     def calculateFitness(self):
         log.debug('calculateFitness')
         poolData = [[self.fitnessMachine, g] for g in self.genomes]
-        timeout = 5 * config.config['ga']['populationSize']*10000
-        self.genomes = self.pool.map_async(_poolFitnessCalculation, poolData).get(timeout)
+        timeout = 30
+        # res = []
+        # for i in poolData:
+        #     res.append(_poolFitnessCalculation(i))
+        # self.genomes = res
+        tmp = self.genomes
+        try:
+            self.genomes = self.pool.map_async(_poolFitnessCalculation, poolData).get(timeout)
+        except multiprocessing.TimeoutError as e:
+            print '!!!!!!!!! ' + str(e)
+            self.genomes = tmp
 
     def selection(self):
         selectedGenomes = self._selectionTournament()

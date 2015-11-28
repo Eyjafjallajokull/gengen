@@ -8,6 +8,7 @@ import glob
 import os
 import lib.config as config
 import lib.log as log
+import numpy as np
 
 class Genome(object):
     fitnessMachine = BaseFitnessMachine
@@ -85,9 +86,12 @@ class MeshGenome(Genome):
 
     def _createObject(self):
         obj = [[rand(self.meshConstraints[0]), rand(self.meshConstraints[1]), rand(self.meshConstraints[2])]]
-        for _ in [1, 2]:
-            i = rand(1)*config.config['main']['triangleSize']
-            obj.append([obj[0][0]+rand(i), obj[0][1]+rand(i), obj[0][2]+rand(i)])
+        while True:
+            for _ in [1, 2]:
+                i = rand(1)
+                obj.append([obj[0][0]+rand(i), obj[0][1]+rand(i), obj[0][2]+rand(i)])
+            if self._validate_size(obj):
+                break
         self._sortObjectPoints(obj)
         return obj
 
@@ -97,7 +101,6 @@ class MeshGenome(Genome):
         if missing_object_count > 0:
             for _ in range(0, missing_object_count):
                 self.data.append(self._createObject())
-
 
     def _sortObjectPoints(self, object):
         """ sort object points clockwise """
@@ -117,12 +120,19 @@ class MeshGenome(Genome):
                   (self.serial, objectCount, pointCount, coordinateCount, randomizeMultiplier))
         for object in random.sample(xrange(0,len(self.data)), objectCount):
             pointsToMutate = random.sample([0,1,2], pointCount)
-            for point in pointsToMutate:
-                coordinatesToMutate = random.sample([0,1,2], coordinateCount)
-                for coordinate in coordinatesToMutate:
-                    self.data[object][point][coordinate] = randNumber(self.data[object][point][coordinate],
-                        self.meshConstraints[coordinate]+2, randomizeMultiplier)
+            coordinatesToMutate = random.sample([0,1,2], coordinateCount)
+            while True:
+                for point in pointsToMutate:
+                    for coordinate in coordinatesToMutate:
+                            self.data[object][point][coordinate] = randNumber(self.data[object][point][coordinate],
+                                self.meshConstraints[coordinate]+2, randomizeMultiplier)
+                if self._validate_size(self.data[object]):
+                    break
             self._sortObjectPoints(self.data[object])
+
+    def _validate_size(self, object):
+        return triangle_area(object) < config.config['main']['triangleSize']
+
 
 class TestGenome(Genome):
     fitnessMachine = TestFitnessMachine

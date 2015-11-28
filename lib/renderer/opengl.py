@@ -145,7 +145,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         self.server.lock.release()
 
 def start_socket_server():
-    HOST, PORT = "localhost", 6007
+    HOST, PORT = "localhost", 6010
     print 'starting server at', PORT
     server = SocketServer.ThreadingTCPServer((HOST, PORT), MyTCPHandler)
     server.allow_reuse_address = True

@@ -21,8 +21,8 @@ def initRamDir(basePath, ramPath):
 def closeRamDir(basePath, ramPath):
     do('rm -rf %s/*' % basePath, False)
     do('cp -r %s/* %s'%(ramPath, basePath), False)
-from lib import dl
-dl.trace_start("trace.html")
+# from lib import dl
+# dl.trace_start("trace.html")
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('command', metavar='COMMAND', help='command: init, evolve, tests')
@@ -39,8 +39,8 @@ if __name__ == '__main__':
     logger = initLogger()
     initRamDir(cfg['main']['populationPath'], cfg['main']['populationRamPath'])
 
-    renderer = OpenglRenderer()
     renderer = BlenderRenderer()
+    renderer = OpenglRenderer()
     fitnessMachine = MeshFitnessMachine(cfg['main']['baseImage'], renderer)
     pop = Population(MeshGenome, fitnessMachine)
 
