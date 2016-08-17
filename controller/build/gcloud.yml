@@ -1,0 +1,49 @@
+main:
+  populationPath: /build_data/
+  baseImage: build/simple1.png
+  baseBlendPath: main.blend
+  triangleSize: 1
+  logPath: debug.log
+
+ga:
+  generations: 1000
+  populationSize: 50
+  genomeSize: 100
+
+  # how many genomes will be selected as parents for next generation [0-1]
+  selectionMultiplier: 0.25
+
+  # include parents in next generation [0-false, 1-true]
+  crossoverAllNew: 0
+  # how many points of genome will be used in crossover step [0-1]
+  crossoverObjectCountMultiplier: 0.25
+
+  # how many objects of genome will be mutaded [0-1]
+  mutationObjectCountMultiplier: 0.25
+  # how many points of every object will be mutaded [1-3]
+  mutationPointCount: 2
+  # how many coordinates of every points will be mutaded [1-3]
+  mutationCoordinateCount: 2
+  # factor of coordinate mutation [0-5]
+  mutationRandomizeMultiplier: 1
+  
+#accuracy:
+#  trigger: 40
+#  genomeSize:
+#    multiplier: 1.05
+#    maximum: 100
+#    int: 1
+#  mutationRandomizeMultiplier:
+#    multiplier: 0.9
+#    minimum: 0.1
+#  mutationObjectCountMultiplier:
+#    multiplier: 0.98
+#    minimum: 0.1
+#  mutationPointCount:
+#    multiplier: 0.95
+#    minimum: 1
+#    int: 1
+#  mutationCoordinateCount:
+#    multiplier: 0.95
+#    minimum: 1
+#    int: 1

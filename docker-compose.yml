@@ -1,0 +1,47 @@
+version: '2'
+services:
+  controller:
+    build: controller
+    volumes:
+      - build_data:/build_data
+    links:
+      - redis
+    environment:
+      - DEBUG=
+      - POOL_SIZE=5
+    command: ["python", "-u", "./main.py", "-c", "build/local.yml", "evolve"]
+
+  renderer:
+    build: renderer
+    restart: always
+    links:
+      - redis
+    ports:
+      - 6080
+      - 4242
+
+  qualifier:
+    build: qualifier
+    restart: always
+    volumes:
+      - build_data:/build_data
+    links:
+      - redis
+    ports:
+      - 4242
+
+  monitor:
+    build: monitor
+    restart: always
+    volumes:
+      - build_data:/build_data
+      - ./monitor:/usr/src/app
+    ports:
+      - 8080:8080
+
+  redis:
+    image: redis:3.2.0-alpine
+
+volumes:
+  build_data:
+    driver: local

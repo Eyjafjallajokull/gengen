@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: qualifier
+  labels:
+    app: gengen
+    role: qualifier
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gengen
+        role: qualifier
+    spec:
+      volumes:
+      - name: gengen-build-data
+        persistentVolumeClaim:
+          claimName: gengen-build-data
+      containers:
+      - name: qualifier
+        image: polejniczak/gengen-qualifier:latest
+        imagePullPolicy: Always
+#        resources:
+#          requests:
+#            cpu: 100m
+#            memory: 100Mi
+        volumeMounts:
+          - name: gengen-build-data
+            mountPath: "/build_data"
+            readOnly: true
+        ports:
+        - containerPort: 4242
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qualifier
+  labels:
+    app: gengen
+    role: qualifier
+spec:
+  ports:
+    - port: 4242
+  selector:
+    app: gengen
+    role: qualifier

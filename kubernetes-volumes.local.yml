@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gengen
+  labels:
+    app: gengen
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: "/data/build_data"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gengen-build-data
+  labels:
+    app: gengen
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi

@@ -1,0 +1,6 @@
+pyyaml
+numpy
+redis
+zerorpc
+pygments
+Pillow

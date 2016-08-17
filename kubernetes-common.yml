@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: gengen
+    role: renderer
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gengen
+        role: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:3.2.0-alpine
+#        resources:
+#          requests:
+#            cpu: 100m
+#            memory: 100Mi
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+          - name: gengen-redis-data
+            mountPath: "/data"
+      volumes:
+      - name: gengen-redis-data
+        emptyDir:
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: gengen
+    role: redis
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: gengen
+    role: redis

@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: renderer
+  labels:
+    app: gengen
+    role: renderer
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gengen
+        role: renderer
+    spec:
+      containers:
+      - name: renderer
+        image: polejniczak/gengen-renderer:latest
+        imagePullPolicy: Always
+#        resources:
+#          requests:
+#            cpu: 100m
+#            memory: 100Mi
+        ports:
+        - containerPort: 4242
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: renderer
+  labels:
+    app: gengen
+    role: renderer
+spec:
+  ports:
+    - port: 4242
+  selector:
+    app: gengen
+    role: renderer

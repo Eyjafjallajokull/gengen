@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: controller
+  labels:
+    app: gengen
+    role: controller
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gengen
+        role: controller
+        aaa: aaas
+    spec:
+      volumes:
+      - name: gengen-build-data
+        persistentVolumeClaim:
+          claimName: gengen-build-data
+      containers:
+      - name: controller
+        image: polejniczak/gengen-controller:latest
+        imagePullPolicy: Always
+#        resources:
+#          requests:
+#            cpu: 100m
+#            memory: 100Mi
+        volumeMounts:
+        - name: gengen-build-data
+          mountPath: "/build_data"
+          readOnly: false
+        env:
+        - name: DEBUG
+          value: "1"
+        - name: POOL_SIZE
+          value: "10"
+        command: ["python", "-u", "./main.py", "-c", "build/gcloud.yml", "evolve"]
